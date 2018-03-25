@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MyTiff } from "../shared/my-tiff";
 import { FingerprintService } from "../fingerprint.service";
 import { Subscription } from "rxjs/Subscription";
+import { AngularFireLiteDatabase } from 'angularfire-lite';
 
 @Component({
   selector: 'app-dashboard',

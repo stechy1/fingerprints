@@ -1,6 +1,6 @@
 <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse">
 
-  <button class="navbar-toggler navbar-toggler-right" type="button" (click)="handleToggleNavbar()">
+  <button class="navbar-toggler navbar-toggler-right" type="button" (click)="showNavbar = !showNavbar">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -16,9 +16,23 @@
       </li>
     </ul>
     <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link disabled" routerLink="manage">Spravovat otisky</a>
-      </li>
+    <ng-template *ngIf="authenticated; then logged else annonymous"></ng-template>
+      <ng-template #logged>
+        <li class="nav-item">
+          <a class="nav-link disabled" routerLink="manage">Spravovat otisky</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="auth/logout">Odhlásit se</a>
+        </li>
+      </ng-template>
+      <ng-template #annonymous>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="auth/signin">Přihlásit se</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="auth/signup">Registrovat</a>
+        </li>
+      </ng-template>
     </ul>
   </div>
 </nav>

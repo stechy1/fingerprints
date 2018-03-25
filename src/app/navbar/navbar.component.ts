@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AngularFireLiteAuth } from 'angularfire-lite';
 
 @Component({
   selector: 'app-navbar',
@@ -8,10 +9,11 @@ import { Component } from '@angular/core';
 export class NavbarComponent {
 
   showNavbar: boolean = false;
+  authenticated: boolean = false;
 
-  constructor() { }
-
-  handleToggleNavbar() {
-    this.showNavbar = !this.showNavbar;
+  constructor(public auth: AngularFireLiteAuth) {
+    auth.isAuthenticated().subscribe(state => {
+      this.authenticated = state;
+    });
   }
 }
