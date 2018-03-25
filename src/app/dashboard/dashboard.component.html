@@ -1,0 +1,12 @@
+<div *ngIf="fingerprints.length == 0">
+<p>Zdá se, že tu nejsou žádné otisky.</p>
+<p>Začněte <a routerLink="/upload">nahráním</a> nového otisku prstu.</p>
+</div>
+
+<div class="row" *ngIf="fingerprints.length > 0">
+  <div class="col-sm-12">
+    <a *ngFor="let item of fingerprints">
+      <app-fingerprint-view  [fingerprint]="item"></app-fingerprint-view>
+    </a>
+  </div>
+</div>
