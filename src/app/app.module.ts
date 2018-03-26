@@ -1,18 +1,20 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from "@angular/common/http";
+import { RouterModule, Routes } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { Ng2FileInputModule } from "ng2-file-input";
+import { AngularFireLite } from 'angularfire-lite';
+
+import { FingerprintService } from "./fingerprint.service";
+import { environment } from '../environments/environment';
 
 import { AppComponent } from './app.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { NavbarComponent } from './navbar/navbar.component';
-import { HttpClientModule } from "@angular/common/http";
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { FingerprintViewComponent } from './dashboard/fingerprint-view/fingerprint-view.component';
 import { FingerprintUploadComponent } from './fingerprint-upload/fingerprint-upload.component';
-import { FingerprintService } from "./fingerprint.service";
-import { AngularFireLite } from 'angularfire-lite';
-import { environment } from '../environments/environment';
 import { SigninComponent } from './auth/signin/signin.component';
 import { SignupComponent } from './auth/signup/signup.component';
 
@@ -38,11 +40,12 @@ const routes: Routes = [
     SignupComponent
   ],
   imports: [
+    AngularFireLite.forRoot(environment.firebase),
     Ng2FileInputModule.forRoot(),
-    RouterModule.forRoot(routes),
+    ReactiveFormsModule,
     BrowserModule,
     HttpClientModule,
-    AngularFireLite.forRoot(environment.firebase)
+    RouterModule.forRoot(routes)
   ],
   providers: [FingerprintService],
   bootstrap: [AppComponent]
