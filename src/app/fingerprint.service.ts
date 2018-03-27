@@ -51,7 +51,7 @@ export class FingerprintService {
     return mCanvas;
   }
 
-  public createImageToGrayScale(data, width, height): HTMLCanvasElement {
+  public createImageToGrayScale(data: Uint8Array, width: number, height: number): HTMLCanvasElement {
     let mCanvas = document.createElement('canvas');
     mCanvas.width = width;
     mCanvas.height = height;
@@ -63,19 +63,16 @@ export class FingerprintService {
 
     for (let i = 0; i < data.length; i++) {
       const value = data[i];
-      const brightness = 0.34 * ((value >> 24) & 0xFF) + 0.5 * ((value >> 16) & 0xFF) + 0.16 * ((value >> 8) & 0xFF);
       // red
-      mImgData.data[dstIndex] = brightness;
+      mImgData.data[dstIndex] = value;
       // green
-      mImgData.data[dstIndex + 1] = brightness;
+      mImgData.data[dstIndex + 1] = value;
       // blue
-      mImgData.data[dstIndex + 2] = brightness;
+      mImgData.data[dstIndex + 2] = value;
       // alpha
       mImgData.data[dstIndex + 3] = 255;
-
       dstIndex += 4;
     }
-
 
     mContext.putImageData(mImgData, 0, 0);
     return mCanvas;
