@@ -1,21 +1,39 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from "@angular/common/http";
+import { RouterModule, Routes } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { Ng2FileInputModule } from "ng2-file-input";
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
+
+import { FingerprintService } from "./fingerprint.service";
 
 import { AppComponent } from './app.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { NavbarComponent } from './navbar/navbar.component';
-import { HttpClientModule } from "@angular/common/http";
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { FingerprintViewComponent } from './dashboard/fingerprint-view/fingerprint-view.component';
 import { FingerprintUploadComponent } from './fingerprint-upload/fingerprint-upload.component';
-import { FingerprintService } from "./fingerprint.service";
+import { SigninComponent } from './auth/signin/signin.component';
+import { SignupComponent } from './auth/signup/signup.component';
+import { AuthService } from './auth/auth.service';
+import { SignupGuard } from './auth/signup/signup.guard';
+import { LogoutComponent } from './auth/logout/logout.component';
+import { FlashMessagesModule } from 'ngx-flash-messages';
+import { SigninGuard } from './auth/signin/signin.guard';
 
 const routes: Routes = [
   {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
   {path: 'dashboard', component: DashboardComponent},
-  {path: 'upload', component: FingerprintUploadComponent}
+  {path: 'upload', component: FingerprintUploadComponent},
+  {path: 'auth', children:
+      [
+        {path: 'signup', component: SignupComponent, canActivate: [SignupGuard]},
+        {path: 'signin', component: SigninComponent, canActivate: [SignupGuard]},
+        {path: 'logout', component: LogoutComponent, canActivate: [SigninGuard]}
+      ]
+  }
 ];
 
 @NgModule({
@@ -24,15 +42,25 @@ const routes: Routes = [
     DashboardComponent,
     NavbarComponent,
     FingerprintViewComponent,
-    FingerprintUploadComponent
+    FingerprintUploadComponent,
+    SigninComponent,
+    SignupComponent,
+    LogoutComponent
   ],
   imports: [
     Ng2FileInputModule.forRoot(),
-    RouterModule.forRoot(routes),
+    ReactiveFormsModule,
     BrowserModule,
-    HttpClientModule
+    HttpClientModule,
+    RouterModule.forRoot(routes),
+    FlashMessagesModule
   ],
-  providers: [FingerprintService],
+  providers: [
+    FingerprintService,
+    AuthService,
+    SignupGuard,
+    SigninGuard
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,12 +1,25 @@
+<section class="jumbotron text-center">
+  <div class="container">
+    <h1 class="jumbotron-heading">Otisky prstů</h1>
+    <p class="lead text-muted">Semestrální práce pro předmět KIV/ZVI</p>
+    <p>
+      <a href="http://www.kiv.zcu.cz/~novyp/zvi/zvi%20zadani%2017-18.pdf"
+         class="btn btn-primary" target="_blank">Zadání semestrální práce [11]</a>
+      <a href="https://github.com/stechy1/fingerprints" class="btn btn-secondary" target="_blank">Zdrojový kód na
+        GitHubu</a>
+    </p>
+    <p><a class="btn btn-success" routerLink="/upload">Nahrát otisk</a></p>
+  </div>
+</section>
+
 <div *ngIf="fingerprints.length == 0">
-<p>Zdá se, že tu nejsou žádné otisky.</p>
-<p>Začněte <a routerLink="/upload">nahráním</a> nového otisku prstu.</p>
+  <p>Zdá se, že tu nejsou žádné otisky.</p>
 </div>
 
 <div class="row" *ngIf="fingerprints.length > 0">
-  <div class="col-sm-12">
-    <a *ngFor="let item of fingerprints">
-      <app-fingerprint-view  [fingerprint]="item"></app-fingerprint-view>
+  <div style="width: 320px" *ngFor="let item of fingerprints">
+    <a href="#">
+      <app-fingerprint-view [fingerprint]="item"></app-fingerprint-view>
     </a>
   </div>
 </div>
