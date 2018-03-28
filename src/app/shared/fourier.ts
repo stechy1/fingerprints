@@ -124,27 +124,27 @@ function columnToMatrix(width: number, height: number, index: number, input: Com
   }
 }
 
-function dftRows(width: number, height: number, data: Complex[]) {
+function dftRows(width: number, height: number, data: Complex[], inverse: boolean) {
   for (let h = 0; h < height; h++) {
     const row = matrixToRow(width, height, h, data);
 
-    dft(row);
+    dft(row, inverse);
 
     rowToMatrix(width, height, h, row, data);
   }
 }
 
-function dftColumns(width: number, height: number, data: Complex[]) {
+function dftColumns(width: number, height: number, data: Complex[], inverse: boolean) {
   for (let w = 0; w < width; w++) {
     const column = matrixToColumn(width, height, w, data);
 
-    dft(column);
+    dft(column, inverse);
 
     columnToMatrix(width, height, w, column, data);
   }
 }
 
-export function dft(data: Complex[]) {
+export function dft(data: Complex[], inverse: boolean) {
   const size = data.length;
   if (size <= 1) {
     return;
@@ -152,14 +152,19 @@ export function dft(data: Complex[]) {
 
   const tmp = split(data);
 
-  dft(tmp.even);
-  dft(tmp.odd);
+  dft(tmp.even, inverse);
+  dft(tmp.odd, inverse);
+
+  let pi2 = 2 * Math.PI;
+  if (!inverse) {
+    pi2 *= -1;
+  }
 
   for (let i = 0; i < (size >> 1); i++) {
     const polar = Complex.mul(
       new Complex(
-        Math.cos(-2 * Math.PI * i / size),
-        Math.sin(-2 * Math.PI * i / size)
+        Math.cos(pi2 * i / size),
+        Math.sin(pi2 * i / size)
       ), tmp.odd[i]
     );
 
@@ -173,14 +178,33 @@ export function fft(width: number, height: number, buffer: Uint8Array|Uint16Arra
   const data = convertToComplex(width, height, buffer);
 
   // dft
-  dftRows(width, height, data);
-  dftColumns(width, height, data);
+  dftRows(width, height, data, false);
+  dftColumns(width, height, data, false);
 
   // postprocessing
   normalize(width, height, data);
-  shift(width, height, data);
+  //shift(width, height, data);
 
   return data;
+
+}
+
+export function ifft(width: number, height: number, data: Complex[]): Complex[] {
+  const size = data.length;
+  const output = new Array();
+  data.forEach(value => {output.push(value)});
+
+  dftRows(width, height, output, true);
+  dftColumns(width, height, output, true);
+
+  for (let i = 0; i < size; i++) {
+    output[i].real /= size;
+    output[i].imag /= size;
+  }
+
+  normalize(width, height, output);
+
+  return output;
 
 }
 
