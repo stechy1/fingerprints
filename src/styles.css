@@ -1,3 +1,7 @@
 @import "bootstrap.min.css";
 @import '~ng2-file-input/ng2-file-input.css';
 @import '~font-awesome/css/font-awesome.css';
+
+input.ng-invalid.ng-touched.ng-dirty {
+  border: 1px solid red;
+}

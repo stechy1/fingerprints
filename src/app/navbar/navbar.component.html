@@ -16,10 +16,10 @@
       </li>
     </ul>
     <ul class="navbar-nav">
-    <ng-template *ngIf="authenticated; then logged else annonymous"></ng-template>
+    <ng-template *ngIf="isLoggedIn$ | async as loggedIn; then logged else annonymous"></ng-template>
       <ng-template #logged>
         <li class="nav-item">
-          <a class="nav-link disabled" routerLink="manage">Spravovat otisky</a>
+          <a class="nav-link" routerLink="manage">Spravovat otisky</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="auth/logout">Odhlásit se</a>
