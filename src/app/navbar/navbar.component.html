@@ -8,18 +8,15 @@
 
   <div class="collapse navbar-collapse" [class.show]="showNavbar">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" routerLink="dashboard">Domů <span class="sr-only">(current)</span></a>
-      </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="upload">Nahrát otisk</a>
+        <a class="nav-link" routerLink="upload" routerLinkActive="active">Nahrát otisk</a>
       </li>
     </ul>
     <ul class="navbar-nav">
     <ng-template *ngIf="isLoggedIn$ | async as loggedIn; then logged else annonymous"></ng-template>
       <ng-template #logged>
         <li class="nav-item">
-          <a class="nav-link" routerLink="manage">Spravovat otisky</a>
+          <a class="nav-link" routerLink="manage" routerLinkActive="active">Spravovat otisky</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="auth/logout">Odhlásit se</a>
@@ -27,10 +24,10 @@
       </ng-template>
       <ng-template #annonymous>
         <li class="nav-item">
-          <a class="nav-link" routerLink="auth/signin">Přihlásit se</a>
+          <a class="nav-link" routerLink="auth/signin" routerLinkActive="active">Přihlásit se</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="auth/signup">Registrovat</a>
+          <a class="nav-link" routerLink="auth/signup" routerLinkActive="active">Registrovat</a>
         </li>
       </ng-template>
     </ul>
