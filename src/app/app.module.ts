@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from "@angular/common/http";
-import { Router, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { Ng2FileInputModule } from "ng2-file-input";
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
 
 import { FingerprintService } from "./fingerprint.service";
 
@@ -20,6 +21,7 @@ import { AuthService } from './auth/auth.service';
 import { SignupGuard } from './auth/signup/signup.guard';
 import { LogoutComponent } from './auth/logout/logout.component';
 import { FlashMessagesModule } from 'ngx-flash-messages';
+import { SigninGuard } from './auth/signin/signin.guard';
 
 const routes: Routes = [
   {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
@@ -28,8 +30,8 @@ const routes: Routes = [
   {path: 'auth', children:
       [
         {path: 'signup', component: SignupComponent, canActivate: [SignupGuard]},
-        {path: 'signin', component: SigninComponent},
-        {path: 'logout', component: LogoutComponent}
+        {path: 'signin', component: SigninComponent, canActivate: [SignupGuard]},
+        {path: 'logout', component: LogoutComponent, canActivate: [SigninGuard]}
       ]
   }
 ];
@@ -46,7 +48,6 @@ const routes: Routes = [
     LogoutComponent
   ],
   imports: [
-    //AngularFireLite.forRoot(environment.firebase),
     Ng2FileInputModule.forRoot(),
     ReactiveFormsModule,
     BrowserModule,
@@ -57,7 +58,8 @@ const routes: Routes = [
   providers: [
     FingerprintService,
     AuthService,
-    SignupGuard
+    SignupGuard,
+    SigninGuard
   ],
   bootstrap: [AppComponent]
 })

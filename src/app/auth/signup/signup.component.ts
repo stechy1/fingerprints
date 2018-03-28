@@ -2,6 +2,7 @@ import { Component, OnInit} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { PasswordValidator } from './password.validator';
 import { AuthService } from '../auth.service';
+import { FlashMessagesService } from 'ngx-flash-messages';
 
 @Component({
   selector: 'app-signup',
@@ -10,9 +11,13 @@ import { AuthService } from '../auth.service';
 })
 export class SignupComponent implements OnInit {
 
+  private static readonly MESSAGES = {
+    "auth/email-already-in-use": "Zadaný e-mail je již použitý"
+  };
+
   signupForm: FormGroup;
 
-  constructor(private _auth: AuthService) { }
+  constructor(private _auth: AuthService, private _flash: FlashMessagesService) { }
 
   ngOnInit() {
     this.signupForm = new FormGroup({
@@ -27,7 +32,10 @@ export class SignupComponent implements OnInit {
 
   handleSubmit() {
     const credentials = this.signupForm.value;
-    this._auth.signUp(credentials.name, credentials.email, credentials.passwordData.password);
+    this._auth.signUp(credentials.name, credentials.email, credentials.passwordData.password)
+      .catch(err => {
+        this._flash.show(SignupComponent.MESSAGES[err.code], {classes: ['alert', 'alert-danger']});
+      });
   }
 
 }

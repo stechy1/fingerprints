@@ -11,7 +11,7 @@ export class LogoutComponent implements OnInit {
   constructor(private _auth: AuthService) { }
 
   ngOnInit() {
-    this._auth.logout();
+    this._auth.logout().then();
   }
 
 }

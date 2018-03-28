@@ -15,9 +15,9 @@ const ANNONYMOUS_USER: User = {
 @Injectable()
 export class AuthService {
 
-  private _userSubject = new BehaviorSubject(ANNONYMOUS_USER);
+  private _userSubject = new BehaviorSubject(undefined);
 
-  user$: Observable<User> = this._userSubject.asObservable();
+  user$: Observable<User> = this._userSubject.asObservable().filter(user => !!user);
   isLoggedIn$: Observable<boolean> = this.user$.map(user => !!user.id);
   isLoggedOut$: Observable<boolean> = this.isLoggedIn$.map(value => !value);
 
@@ -37,10 +37,12 @@ export class AuthService {
     });
   }
 
-  public async signUp(name: string, email: string, password: string) {
-    await firebase.auth().createUserWithEmailAndPassword(email, password);
-    await firebase.auth().currentUser.updateProfile({displayName: name, photoURL: null});
-    await this._router.navigate(["/upload"]);
+  public async signUp(name: string, email: string, password: string): Promise<any> {
+    return firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(async () => {
+        await firebase.auth().currentUser.updateProfile({displayName: name, photoURL: null});
+        await this._router.navigate(["/upload"]);
+      });
   }
 
   public signIn(email: string, password: string): Promise<any> {
