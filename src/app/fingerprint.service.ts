@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from "rxjs/Observable";
+import * as firebase from 'firebase';
 import 'rxjs/add/observable/of';
 
 import { MyTiff } from "./shared/my-tiff";
@@ -7,9 +9,37 @@ import { MyTiff } from "./shared/my-tiff";
 @Injectable()
 export class FingerprintService {
 
-  private _images: MyTiff[] = [];
+  private static readonly FINGERPRINT_REFERENCE = "fingerprints"
 
-  constructor() {}
+  private _images: MyTiff[] = [];
+  private _self: FingerprintService;
+
+  constructor(private _http: HttpClient) {
+    this._self = this;
+    const ref = firebase.database()
+      .ref(FingerprintService.FINGERPRINT_REFERENCE)
+    ref.on('child_added', this.handleChildAdded(this));
+  }
+
+  private handleChildAdded(self: FingerprintService) {
+    return (data => {
+      const url = data.val().url;
+      const width = data.val().width;
+      const height = data.val().height;
+      const extention = data.val().extention;
+      const fileName = `${data.key}.${extention}`;
+
+      self._http.get(url, {responseType: "blob"}).subscribe((blob: Blob) => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const buffer = e.target.result;
+          const img = new MyTiff(fileName, buffer);
+          console.log("Image loaded: " + fileName);
+        };
+        reader.readAsArrayBuffer(blob);
+      });
+    });
+  }
 
   public load(file: File): Promise<MyTiff> {
     return new Promise<any>((resolve, reject) => {
@@ -26,56 +56,22 @@ export class FingerprintService {
     });
   }
 
-  public insert(fingerprint: MyTiff): void {
-    this._images.push(fingerprint)
-  }
-
-  public createImageFromRGBdata(data, width, height): HTMLCanvasElement {
-    let mCanvas = document.createElement('canvas');
-    mCanvas.width = width;
-    mCanvas.height = height;
-
-    let mContext = mCanvas.getContext('2d');
-    let mImgData = mContext.createImageData(width, height);
-
-    let dstIndex = 0;
-
-    for (let i = 0; i < data.length; i++) {
-      mImgData.data[dstIndex] = ((data[i] >> 24) & 0xFF);	// r
-      mImgData.data[dstIndex + 1] = ((data[i] >> 16) & 0xFF);	// g
-      mImgData.data[dstIndex + 2] = ((data[i] >> 8) & 0xFF);	// b
-      mImgData.data[dstIndex + 3] = 255; // 255 = 0xFF - constant alpha, 100% opaque
-      dstIndex += 4;
-    }
-    mContext.putImageData(mImgData, 0, 0);
-    return mCanvas;
-  }
-
-  public createImageToGrayScale(data: Uint8Array, width: number, height: number): HTMLCanvasElement {
-    let mCanvas = document.createElement('canvas');
-    mCanvas.width = width;
-    mCanvas.height = height;
-
-    let mContext = mCanvas.getContext('2d');
-    let mImgData = mContext.createImageData(width, height);
-
-    let dstIndex = 0;
-
-    for (let i = 0; i < data.length; i++) {
-      const value = data[i];
-      // red
-      mImgData.data[dstIndex] = value;
-      // green
-      mImgData.data[dstIndex + 1] = value;
-      // blue
-      mImgData.data[dstIndex + 2] = value;
-      // alpha
-      mImgData.data[dstIndex + 3] = 255;
-      dstIndex += 4;
-    }
-
-    mContext.putImageData(mImgData, 0, 0);
-    return mCanvas;
+  public async insert(fingerprint: MyTiff) {
+    const bucket = await firebase
+      .storage()
+      .ref(`${FingerprintService.FINGERPRINT_REFERENCE}/${fingerprint.filename}`)
+      .put(fingerprint.buffer);
+    const url = bucket.metadata.downloadURLs[0];
+    const name = fingerprint.filename.substr(0, fingerprint.filename.indexOf("."));
+    const extention = fingerprint.filename.substr(fingerprint.filename.indexOf(".") + 1);
+    await firebase.database()
+      .ref(`fingerprints/${name}`)
+      .set({
+        url: url,
+        width: fingerprint.width,
+        height: fingerprint.height,
+        extention: extention
+      });
   }
 
   public images(): Observable<MyTiff[]> {

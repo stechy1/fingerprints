@@ -11,7 +11,8 @@ import { FlashMessagesService } from 'ngx-flash-messages';
 export class SigninComponent implements OnInit {
 
   private static readonly MESSAGES = {
-    "auth/wrong-password": "Uživatelské jméno nebo neslo není psrávné"
+    "auth/wrong-password": "Uživatelské jméno nebo neslo není psrávné",
+    "auth/user-not-found": "Uživatelské jméno nebo neslo není psrávné"
   };
 
   signinForm: FormGroup;

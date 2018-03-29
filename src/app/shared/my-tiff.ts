@@ -4,8 +4,9 @@ export class MyTiff {
 
   private _raw: any;
 
-  constructor(private _filename: string, buffer: ArrayBuffer) {
-    this._raw = new this.Tiff({buffer: buffer});
+
+  constructor(private _filename: string, private _buffer: ArrayBuffer) {
+    this._raw = new this.Tiff({buffer: _buffer});
   }
 
   public get width(): number {
@@ -36,8 +37,16 @@ export class MyTiff {
     return this._raw.readRGBAImage();
   }
 
+  public get buffer(): ArrayBuffer {
+    return this._buffer;
+  }
+
   public toCanvas(): HTMLCanvasElement {
     return this._raw.toCanvas();
+  }
+
+  public get imageSrc(): string {
+    return this.toCanvas().toDataURL("image/png")
   }
 
   public toDataURL(): string {

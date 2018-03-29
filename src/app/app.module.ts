@@ -13,7 +13,7 @@ import { FingerprintService } from "./fingerprint.service";
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { FingerprintViewComponent } from './dashboard/fingerprint-view/fingerprint-view.component';
+import { FingerprintViewComponent } from './fingerprint-view/fingerprint-view.component';
 import { FingerprintUploadComponent } from './fingerprint-upload/fingerprint-upload.component';
 import { SigninComponent } from './auth/signin/signin.component';
 import { SignupComponent } from './auth/signup/signup.component';
@@ -48,9 +48,9 @@ const routes: Routes = [
     LogoutComponent
   ],
   imports: [
+    BrowserModule,
     Ng2FileInputModule.forRoot(),
     ReactiveFormsModule,
-    BrowserModule,
     HttpClientModule,
     RouterModule.forRoot(routes),
     FlashMessagesModule

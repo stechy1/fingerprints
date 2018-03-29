@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { MyTiff } from "../../shared/my-tiff";
+import { MyTiff } from "../shared/my-tiff";
 
 @Component({
   selector: 'app-fingerprint-view',
@@ -9,12 +9,17 @@ import { MyTiff } from "../../shared/my-tiff";
 export class FingerprintViewComponent implements OnInit {
 
   @ViewChild('canvasContainer') canvasContainer: ElementRef;
+  @Input('max-size') maxSize: number = 300;
+
+  imageSrc: string;
 
   private _fingerprint: MyTiff;
 
   constructor() { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log(this.canvasContainer);
+  }
 
   get fingerprint(): MyTiff {
     return this._fingerprint;
@@ -26,10 +31,6 @@ export class FingerprintViewComponent implements OnInit {
       return;
     }
 
-    const natElement = this.canvasContainer.nativeElement;
-    if (natElement.lastChild) {
-      natElement.removeChild(natElement.lastChild);
-    }
-    natElement.appendChild(value.toCanvas());
+    this.imageSrc = this._fingerprint.imageSrc;
   }
 }

@@ -22,6 +22,8 @@ export class FingerprintUploadComponent implements OnInit {
       this._fingerprintService.load(file)
         .then(value => {
           this.selectedFingerprint = value;
+          console.log(value.buffer);
+          console.log(value.readRGBAImage());
         }).catch(err => {
           console.log(err);
       })
@@ -30,6 +32,6 @@ export class FingerprintUploadComponent implements OnInit {
 
   handleUpload() {
     this._fingerprintService.insert(this.selectedFingerprint);
-    this._router.navigate(['dashboard']);
+    //this._router.navigate(['dashboard']);
   }
 }
