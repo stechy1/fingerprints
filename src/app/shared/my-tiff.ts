@@ -4,8 +4,7 @@ export class MyTiff {
 
   private _raw: any;
 
-
-  constructor(private _filename: string, private _buffer: ArrayBuffer) {
+  constructor(private _buffer: ArrayBuffer) {
     this._raw = new this.Tiff({buffer: _buffer});
   }
 
@@ -55,9 +54,5 @@ export class MyTiff {
 
   public close(): void {
     return this._raw.close();
-  }
-
-  get filename(): string {
-    return this._filename;
   }
 }

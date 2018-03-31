@@ -12,14 +12,16 @@
   </div>
 </section>
 
-<div *ngIf="fingerprints.length == 0">
+<div *ngIf="!(fingerprints$ | async); else fingRow">
   <p>Zdá se, že tu nejsou žádné otisky.</p>
 </div>
 
-<div class="row" *ngIf="fingerprints.length > 0">
-  <div style="width: 320px" *ngFor="let item of fingerprints">
+<ng-template #fingRow>
+<div class="row" >
+  <div style="width: 320px" *ngFor="let item of fingerprints$ | async">
     <a href="#">
       <app-fingerprint-view [fingerprint]="item"></app-fingerprint-view>
     </a>
   </div>
 </div>
+</ng-template>

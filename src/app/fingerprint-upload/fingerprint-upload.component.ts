@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MyTiff } from "../shared/my-tiff";
 import { FingerprintService } from "../fingerprint.service";
 import { Router } from "@angular/router";
+import { Fingerprint } from "../shared/fingerprint";
 
 @Component({
   selector: 'app-fingerprint-upload',
@@ -10,20 +11,22 @@ import { Router } from "@angular/router";
 })
 export class FingerprintUploadComponent implements OnInit {
 
-  selectedFingerprint: MyTiff;
+  selectedFingerprint: Fingerprint;
 
   constructor(private _fingerprintService: FingerprintService, private _router: Router) { }
+
+  private uploadProgress(progress: number) {
+    console.log(progress);
+  }
 
   ngOnInit() {}
 
   handleFileChange(event): void {
-    const file = event.file;
+    const file: File = event.file;
     if (file) {
       this._fingerprintService.load(file)
-        .then(value => {
-          this.selectedFingerprint = value;
-          console.log(value.buffer);
-          console.log(value.readRGBAImage());
+        .then(buffer => {
+          this.selectedFingerprint = Fingerprint.fromBuffer(file.name, buffer);
         }).catch(err => {
           console.log(err);
       })
@@ -31,7 +34,8 @@ export class FingerprintUploadComponent implements OnInit {
   }
 
   handleUpload() {
-    this._fingerprintService.insert(this.selectedFingerprint);
+    this._fingerprintService.insert(this.selectedFingerprint, this.uploadProgress)
+      .then(() => this._router.navigate(['dashboard']));
     //this._router.navigate(['dashboard']);
   }
 }

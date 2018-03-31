@@ -2,52 +2,49 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from "rxjs/Observable";
 import * as firebase from 'firebase';
-import 'rxjs/add/observable/of';
 
-import { MyTiff } from "./shared/my-tiff";
+
+import { Fingerprint } from "./shared/fingerprint";
+import UploadTaskSnapshot = firebase.storage.UploadTaskSnapshot;
+import UploadTask = firebase.storage.UploadTask;
 
 @Injectable()
 export class FingerprintService {
 
   private static readonly FINGERPRINT_REFERENCE = "fingerprints"
 
-  private _images: MyTiff[] = [];
-  private _self: FingerprintService;
+  private _fingerprints: Fingerprint[] = [];
 
   constructor(private _http: HttpClient) {
-    this._self = this;
-    const ref = firebase.database()
-      .ref(FingerprintService.FINGERPRINT_REFERENCE)
-    ref.on('child_added', this.handleChildAdded(this));
+    firebase.database()
+            .ref(FingerprintService.FINGERPRINT_REFERENCE)
+            .on('child_added', this.handleChildAdded(this));
   }
 
   private handleChildAdded(self: FingerprintService) {
-    return (data => {
+    return ((data: any) => {
       const url = data.val().url;
-      const width = data.val().width;
-      const height = data.val().height;
       const extention = data.val().extention;
       const fileName = `${data.key}.${extention}`;
 
-      self._http.get(url, {responseType: "blob"}).subscribe((blob: Blob) => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          const buffer = e.target.result;
-          const img = new MyTiff(fileName, buffer);
-          console.log("Image loaded: " + fileName);
-        };
-        reader.readAsArrayBuffer(blob);
-      });
+      self._fingerprints.push(new Fingerprint(fileName, url));
     });
   }
 
-  public load(file: File): Promise<MyTiff> {
-    return new Promise<any>((resolve, reject) => {
+  public downloadBuffer(url: string): Promise<ArrayBuffer> {
+    return this._http.get(url, {responseType: "blob"})
+               .toPromise()
+               .then((blob: Blob) => {
+                 return this.load(blob);
+               });
+  }
+
+  public load(file: File | Blob): Promise<ArrayBuffer> {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         const buffer = e.target.result;
-        const img = new MyTiff(file.name, buffer);
-        resolve(img);
+        resolve(buffer);
       };
       reader.onerror = (e: any) => {
         reject(e);
@@ -56,25 +53,53 @@ export class FingerprintService {
     });
   }
 
-  public async insert(fingerprint: MyTiff) {
-    const bucket = await firebase
-      .storage()
-      .ref(`${FingerprintService.FINGERPRINT_REFERENCE}/${fingerprint.filename}`)
-      .put(fingerprint.buffer);
-    const url = bucket.metadata.downloadURLs[0];
-    const name = fingerprint.filename.substr(0, fingerprint.filename.indexOf("."));
-    const extention = fingerprint.filename.substr(fingerprint.filename.indexOf(".") + 1);
-    await firebase.database()
-      .ref(`fingerprints/${name}`)
-      .set({
-        url: url,
-        width: fingerprint.width,
-        height: fingerprint.height,
-        extention: extention
-      });
+  private _uploadBuffer(fingerprint: Fingerprint, progressChanged: Function): UploadTask {
+    const task = firebase.storage()
+                         .ref(`${FingerprintService.FINGERPRINT_REFERENCE}/${fingerprint.filename}`)
+                         .put(fingerprint.tiff.buffer);
+    task.on('state_changed', (snapshot: UploadTaskSnapshot) => {
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      progressChanged(progress);
+    });
+    return task;
   }
 
-  public images(): Observable<MyTiff[]> {
-    return Observable.of(this._images);
+  public async insert(fingerprint: Fingerprint, progressChanged: Function) {
+    const name = fingerprint.filename.substr(0, fingerprint.filename.indexOf("."));
+    const extention = fingerprint.filename.substr(fingerprint.filename.indexOf(".") + 1);
+    this._uploadBuffer(fingerprint, progressChanged)
+        .then((snapshot: UploadTaskSnapshot) => {
+          const url = snapshot.metadata.downloadURLs[0];
+          return firebase.database()
+                         .ref(`fingerprints/${name}`)
+                         .set({
+                           url: url,
+                           extention: extention
+                         });
+        });
+    //const url = bucket.metadata.downloadURLs[0];
+
+  }
+
+  // public async insert(fingerprint: MyTiff) {
+  //   const bucket = await firebase
+  //     .storage()
+  //     .ref(`${FingerprintService.FINGERPRINT_REFERENCE}/${fingerprint.filename}`)
+  //     .put(fingerprint.buffer);
+  //   const url = bucket.metadata.downloadURLs[0];
+  //   // const name = fingerprint.filename.substr(0, fingerprint.filename.indexOf("."));
+  //   // const extention = fingerprint.filename.substr(fingerprint.filename.indexOf(".") + 1);
+  //   await firebase.database()
+  //     .ref(`fingerprints/${name}`)
+  //     .set({
+  //       url: url,
+  //       width: fingerprint.width,
+  //       height: fingerprint.height,
+  //       // extention: extention
+  //     });
+  // }
+
+  public fingerprints(): Observable<Fingerprint[]> {
+    return Observable.of(this._fingerprints);
   }
 }
