@@ -10,7 +10,7 @@ export class Fingerprint {
     return f;
   }
 
-  private _imageBehaviour = new BehaviorSubject("/assets/loading.gif");
+  private _imageBehaviour = new BehaviorSubject(undefined);
 
   private _tiff: MyTiff;
 
@@ -20,7 +20,7 @@ export class Fingerprint {
 
   public set buffer(buffer: ArrayBuffer) {
     if (this._tiff) {
-      throw new Error("Buffer is already assigned");
+      return;
     }
 
     this._tiff = new MyTiff(buffer);
@@ -33,6 +33,14 @@ export class Fingerprint {
 
   get filename(): string {
     return this._filename;
+  }
+
+  get name(): string {
+    return this._filename.substr(0, this._filename.indexOf("."));
+  }
+
+  get extention(): string {
+    return this._filename.substr(this._filename.indexOf("."));
   }
 
   get url(): string {

@@ -23,6 +23,7 @@ import { SignupGuard } from './auth/signup/signup.guard';
 import { LogoutComponent } from './auth/logout/logout.component';
 import { FlashMessagesModule } from 'ngx-flash-messages';
 import { SigninGuard } from './auth/signin/signin.guard';
+import { FingerprintComponent } from "./fingerprint/fingerprint.component";
 
 const routes: Routes = [
   {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
@@ -35,6 +36,7 @@ const routes: Routes = [
         {path: 'logout', component: LogoutComponent, canActivate: [SigninGuard]}
       ]
   },
+  {path: 'fingerprint/:name', component: FingerprintComponent},
   {path: '*', redirectTo: 'dashboard'}
 ];
 
@@ -45,6 +47,7 @@ const routes: Routes = [
     NavbarComponent,
     FingerprintViewComponent,
     FingerprintUploadComponent,
+    FingerprintComponent,
     SigninComponent,
     SignupComponent,
     LogoutComponent,

@@ -19,7 +19,7 @@
 <ng-template #fingRow>
 <div class="row" >
   <div style="width: 320px" *ngFor="let item of fingerprints$ | async">
-    <a href="#">
+    <a [routerLink]="['/fingerprint', item.name]">
       <app-fingerprint-view [fingerprint]="item"></app-fingerprint-view>
     </a>
   </div>

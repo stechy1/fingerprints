@@ -183,7 +183,7 @@ export function fft(width: number, height: number, buffer: Uint8Array|Uint16Arra
 
   // postprocessing
   normalize(width, height, data);
-  //shift(width, height, data);
+  shift(width, height, data);
 
   return data;
 
@@ -194,6 +194,7 @@ export function ifft(width: number, height: number, data: Complex[]): Complex[] 
   const output = new Array();
   data.forEach(value => {output.push(value)});
 
+  //shift(width, height, output);
   dftRows(width, height, output, true);
   dftColumns(width, height, output, true);
 

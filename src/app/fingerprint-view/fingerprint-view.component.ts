@@ -1,5 +1,7 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { MyTiff } from "../shared/my-tiff";
+import { Observable } from "rxjs/Observable";
+import { Fingerprint } from "../shared/fingerprint";
+import { FingerprintService } from "../fingerprint.service";
 
 @Component({
   selector: 'app-fingerprint-view',
@@ -8,29 +10,44 @@ import { MyTiff } from "../shared/my-tiff";
 })
 export class FingerprintViewComponent implements OnInit {
 
+  private _fingerprint: Fingerprint;
+
   @ViewChild('canvasContainer') canvasContainer: ElementRef;
   @Input('max-size') maxSize: number = 300;
 
-  imageSrc: string;
+  imageSrc: Observable<string>;
 
-  private _fingerprint: MyTiff;
-
-  constructor() { }
-
-  ngOnInit() {
-    console.log(this.canvasContainer);
+  constructor(private _fingerprintService: FingerprintService) {
   }
 
-  get fingerprint(): MyTiff {
+  ngOnInit() {
+    // this.imageSrc = this._fingerprint.fingerprintImageSource;
+    // if (this._fingerprint.url) {
+    //   this._fingerprintService.downloadBuffer(this._fingerprint.url)
+    //   .then(buffer => {
+    //     this._fingerprint.buffer = buffer;
+    //   });
+    // }
+  }
+
+  get fingerprint(): Fingerprint {
     return this._fingerprint;
   }
 
-  @Input('fingerprint') set fingerprint(value: MyTiff) {
+  @Input('fingerprint') set fingerprint(value: Fingerprint) {
     this._fingerprint = value;
     if (!value) {
       return;
     }
 
-    this.imageSrc = this._fingerprint.imageSrc;
+    if (this._fingerprint.fingerprintImageSource) {
+      this.imageSrc = this.fingerprint.fingerprintImageSource;
+    }
+    if (this._fingerprint.url) {
+      this._fingerprintService.downloadBuffer(this._fingerprint.url)
+          .then(buffer => {
+            this._fingerprint.buffer = buffer;
+          });
+    }
   }
 }
