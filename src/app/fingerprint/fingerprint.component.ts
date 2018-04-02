@@ -1,12 +1,11 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FingerprintService } from "../fingerprint.service";
 import { Fingerprint } from "../shared/fingerprint";
 import { ActivatedRoute } from "@angular/router";
 import * as Fourier from "../shared/fourier";
 import * as Images from "../shared/images";
-import { Subscription } from "rxjs/Subscription";
-import { Observable } from "rxjs/Observable";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
+import { Otsu } from "../shared/otsu";
+import { Histogram } from "../shared/histogram";
 
 @Component({
   selector: 'app-fingerprint',
@@ -37,11 +36,9 @@ export class FingerprintComponent implements OnInit {
   }
 
   handleFFT() {
-    const raw = this.fingerprint.tiff.readRGBAImage();
     const width = this.fingerprint.tiff.width;
     const height = this.fingerprint.tiff.height;
-    const rgbBuffer = new Int32Array(raw);
-    const grayBuffer = Images.toGrayScale(rgbBuffer);
+    const grayBuffer = this.fingerprint.grayBuffer;
     const fftData = Fourier.fft(width, height, grayBuffer);
     const outputFFTBuffer = Fourier.convertToIntBuffer(width, height, fftData);
     const fftCanvas = Images.createImageToGrayScale(outputFFTBuffer, width, height);
@@ -51,5 +48,24 @@ export class FingerprintComponent implements OnInit {
     const ifftCanvas = Images.createImageToGrayScale(outputIFFTBuffer, width, height);
     this.container.nativeElement.appendChild(ifftCanvas);
 
+  }
+
+  handleOtsu() {
+    const width = this.fingerprint.tiff.width;
+    const height = this.fingerprint.tiff.height;
+    const buffer = this.fingerprint.grayBuffer;
+    const hist = Histogram.fromImage(buffer);
+
+    const otsu = new Otsu(hist.histogramData, 2);
+    const tresholdedBuffer = otsu.getbuffer(buffer);
+    const otsuImage = Images.createImageToGrayScale(tresholdedBuffer, width, height);
+    this.container.nativeElement.appendChild(otsuImage);
+
+    const eq = hist.equalize(buffer);
+    const eqHist = Histogram.fromImage(eq);
+    const eqOtsu = new Otsu(eqHist.histogramData, 2);
+    const eqTresholdedBuffer = eqOtsu.getbuffer(eq);
+    const eqOtsuImage = Images.createImageToGrayScale(eqTresholdedBuffer, width, height);
+    this.container.nativeElement.appendChild(eqOtsuImage);
   }
 }

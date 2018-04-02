@@ -1,6 +1,7 @@
 import { MyTiff } from "./my-tiff";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { Observable } from "rxjs/Observable";
+import * as Images from "./images";
 
 export class Fingerprint {
 
@@ -45,5 +46,11 @@ export class Fingerprint {
 
   get url(): string {
     return this._url;
+  }
+
+  get grayBuffer(): Uint8Array {
+    const raw = this.tiff.readRGBAImage();
+    const rgbBuffer = new Int32Array(raw);
+    return Images.toGrayScale(rgbBuffer);
   }
 }
