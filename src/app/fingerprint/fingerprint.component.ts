@@ -6,7 +6,8 @@ import * as Fourier from "../shared/fourier";
 import * as Images from "../shared/images";
 import { Otsu } from "../shared/otsu";
 import { Histogram } from "../shared/histogram";
-import { computeAdaptiveThreshold } from '../shared/adaptive-treshold';
+import { toMatrix1D, toMatrix2D } from "../shared/matrix";
+import { adaptiveThreshold } from "../shared/adaptive-treshold";
 
 @Component({
   selector: 'app-fingerprint',
@@ -75,9 +76,9 @@ export class FingerprintComponent implements OnInit {
     const height = this.fingerprint.tiff.height;
     const buffer = this.fingerprint.grayBuffer;
 
-    const thresholded = computeAdaptiveThreshold(width, height, buffer, 80);
+    const thresholded = adaptiveThreshold(width, height, toMatrix2D(width, height, buffer));
     console.log(thresholded);
-    const thresholdedImage = Images.createImageToGrayScale(thresholded, width, height);
+    const thresholdedImage = Images.createImageToGrayScale(toMatrix1D(width, height, thresholded), width, height);
     this.container.nativeElement.appendChild(thresholdedImage);
   }
 }

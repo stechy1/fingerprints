@@ -104,7 +104,7 @@ function matrixToRow(width: number, height: number, index: number, input: Comple
 }
 
 function matrixToColumn(width: number, height: number, index: number, input: Complex[]): Array<Complex> {
-  const output = new Array<Complex>(width);
+  const output = new Array<Complex>(height);
   for (let h = 0; h < height; h++) {
     output[h] = input[index + width * h];
   }
