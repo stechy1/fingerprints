@@ -6,6 +6,7 @@ import * as Fourier from "../shared/fourier";
 import * as Images from "../shared/images";
 import { Otsu } from "../shared/otsu";
 import { Histogram } from "../shared/histogram";
+import { computeAdaptiveThreshold } from '../shared/adaptive-treshold';
 
 @Component({
   selector: 'app-fingerprint',
@@ -67,5 +68,16 @@ export class FingerprintComponent implements OnInit {
     const eqTresholdedBuffer = eqOtsu.getbuffer(eq);
     const eqOtsuImage = Images.createImageToGrayScale(eqTresholdedBuffer, width, height);
     this.container.nativeElement.appendChild(eqOtsuImage);
+  }
+
+  handleAdaptiveThreshold() {
+    const width = this.fingerprint.tiff.width;
+    const height = this.fingerprint.tiff.height;
+    const buffer = this.fingerprint.grayBuffer;
+
+    const thresholded = computeAdaptiveThreshold(width, height, buffer, 80);
+    console.log(thresholded);
+    const thresholdedImage = Images.createImageToGrayScale(thresholded, width, height);
+    this.container.nativeElement.appendChild(thresholdedImage);
   }
 }
