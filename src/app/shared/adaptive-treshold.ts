@@ -52,7 +52,7 @@ export function adaptiveThreshold(width: number, height: number, buffer: Array<U
       if ((buffer[i][j] * count) < (sum * (1.0 - threshold))) {
         output[i][j] = 0;
       } else {
-        output[i][j] = 255;
+        output[i][j] = 1;
       }
     }
   }

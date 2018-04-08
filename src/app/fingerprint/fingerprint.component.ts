@@ -3,11 +3,12 @@ import { FingerprintService } from "../fingerprint.service";
 import { Fingerprint } from "../shared/fingerprint";
 import { ActivatedRoute } from "@angular/router";
 import * as Fourier from "../shared/fourier";
-import * as Images from "../shared/images";
 import { Otsu } from "../shared/otsu";
 import { Histogram } from "../shared/histogram";
 import { toMatrix1D, toMatrix2D } from "../shared/matrix";
 import { adaptiveThreshold } from "../shared/adaptive-treshold";
+import { skeletize } from "../shared/skeletization";
+import { createImageToGrayScale, invert2D, scaleUp } from "../shared/images";
 
 @Component({
   selector: 'app-fingerprint',
@@ -43,11 +44,11 @@ export class FingerprintComponent implements OnInit {
     const grayBuffer = this.fingerprint.grayBuffer;
     const fftData = Fourier.fft(width, height, grayBuffer);
     const outputFFTBuffer = Fourier.convertToIntBuffer(width, height, fftData);
-    const fftCanvas = Images.createImageToGrayScale(outputFFTBuffer, width, height);
+    const fftCanvas = createImageToGrayScale(width, height, outputFFTBuffer);
     this.container.nativeElement.appendChild(fftCanvas);
     const ifftData = Fourier.ifft(width, height, fftData);
     const outputIFFTBuffer = Fourier.convertToIntBuffer(width, height, ifftData);
-    const ifftCanvas = Images.createImageToGrayScale(outputIFFTBuffer, width, height);
+    const ifftCanvas = createImageToGrayScale(width, height, outputIFFTBuffer);
     this.container.nativeElement.appendChild(ifftCanvas);
 
   }
@@ -60,14 +61,14 @@ export class FingerprintComponent implements OnInit {
 
     const otsu = new Otsu(hist.histogramData, 2);
     const tresholdedBuffer = otsu.getbuffer(buffer);
-    const otsuImage = Images.createImageToGrayScale(tresholdedBuffer, width, height);
+    const otsuImage = createImageToGrayScale(width, height, tresholdedBuffer);
     this.container.nativeElement.appendChild(otsuImage);
 
     const eq = hist.equalize(buffer);
     const eqHist = Histogram.fromImage(eq);
     const eqOtsu = new Otsu(eqHist.histogramData, 2);
     const eqTresholdedBuffer = eqOtsu.getbuffer(eq);
-    const eqOtsuImage = Images.createImageToGrayScale(eqTresholdedBuffer, width, height);
+    const eqOtsuImage = createImageToGrayScale(width, height, eqTresholdedBuffer);
     this.container.nativeElement.appendChild(eqOtsuImage);
   }
 
@@ -77,8 +78,31 @@ export class FingerprintComponent implements OnInit {
     const buffer = this.fingerprint.grayBuffer;
 
     const thresholded = adaptiveThreshold(width, height, toMatrix2D(width, height, buffer));
-    console.log(thresholded);
-    const thresholdedImage = Images.createImageToGrayScale(toMatrix1D(width, height, thresholded), width, height);
+    const thresholdedImage = createImageToGrayScale(width, height, scaleUp(toMatrix1D(width, height, thresholded)));
     this.container.nativeElement.appendChild(thresholdedImage);
+  }
+
+  handleSkeletize() {
+    // const arr = new Uint8Array([0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0]);
+    // const arr2D = toMatrix2D(9, 7, arr);
+    //
+    // skeletize(9, 7, arr2D).subscribe(value => {
+    //   const skeletizedImage = createImageToGrayScale(9, 7, scaleUp(toMatrix1D(9, 7, value)));
+    //   this.container.nativeElement.appendChild(skeletizedImage);
+    // })
+    //this.handleAdaptiveThreshold();
+    const width = this.fingerprint.tiff.width;
+    const height = this.fingerprint.tiff.height;
+    const buffer = this.fingerprint.whiteBlackBuffer;
+    console.log(toMatrix2D(width, height, buffer));
+
+    // const thresholded = adaptiveThreshold(width, height, toMatrix2D(width, height, buffer));
+    // console.log(thresholded);
+    skeletize(width, height, invert2D(toMatrix2D(width, height, buffer))).subscribe(value => {
+      const skeletizedImage = createImageToGrayScale(width, height, scaleUp(toMatrix1D(width, height, value)));
+      this.container.nativeElement.appendChild(skeletizedImage);
+      console.log(value);
+    });
+
   }
 }

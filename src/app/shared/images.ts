@@ -7,7 +7,11 @@ export function toGrayScale(rgbBuffer: Int32Array): Uint8Array {
   return new Uint8Array(grayBuffer);
 }
 
-export function createImageFromRGBdata(data: Uint32Array, width, height): HTMLCanvasElement {
+export function toBinaryScale(rgbBuffer: Int32Array): Uint8Array {
+  return new Uint8Array(rgbBuffer.map(value => (((value >> 8) & 0xFF) === 0) ? 0 : 1));
+}
+
+export function createImageFromRGBdata(width: number, height: number, data: Uint32Array): HTMLCanvasElement {
   let canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -28,7 +32,7 @@ export function createImageFromRGBdata(data: Uint32Array, width, height): HTMLCa
   return canvas;
 }
 
-export function createImageToGrayScale(data: Uint8Array, width: number, height: number): HTMLCanvasElement {
+export function createImageToGrayScale(width: number, height: number, data: Uint8Array): HTMLCanvasElement {
   let canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -49,4 +53,22 @@ export function createImageToGrayScale(data: Uint8Array, width: number, height: 
 
   context.putImageData(imageData, 0, 0);
   return canvas;
+}
+
+export function scaleUp(buffer: Uint8Array): Uint8Array {
+  return buffer.map(value => value * 255);
+}
+
+export function invert1D(buffer: Uint8Array): Uint8Array {
+  return buffer.map(value => (value === 0) ? 1 : 0);
+}
+
+export function invert2D(buffer: Array<Uint8Array>) {
+  const length1 = buffer.length;
+  const out = new Array(length1);
+  for (let i = 0; i < length1; i++) {
+    out[i] = buffer[i].map(value => (value === 0) ? 1 : 0);
+  }
+
+  return out;
 }

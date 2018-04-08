@@ -20,3 +20,15 @@ export function toMatrix1D(width: number, height: number, buffer: Array<Uint8Arr
 
   return out;
 }
+
+export function isMatrixSame(width: number, height: number, left: any, right: any): boolean {
+  for (let w = 0; w < width; w++) {
+    for (let h = 0; h < height; h++) {
+      if (left[w][h] != right[w][h]) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
