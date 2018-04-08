@@ -5,10 +5,11 @@ import { ActivatedRoute } from "@angular/router";
 import * as Fourier from "../shared/fourier";
 import { Otsu } from "../shared/otsu";
 import { Histogram } from "../shared/histogram";
-import { toMatrix1D, toMatrix2D } from "../shared/matrix";
+import { serialize2D, toMatrix1D, toMatrix2D } from "../shared/matrix";
 import { adaptiveThreshold } from "../shared/adaptive-treshold";
 import { skeletize } from "../shared/skeletization";
 import { createImageToGrayScale, invert2D, scaleUp } from "../shared/images";
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-fingerprint',
@@ -83,25 +84,15 @@ export class FingerprintComponent implements OnInit {
   }
 
   handleSkeletize() {
-    // const arr = new Uint8Array([0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0]);
-    // const arr2D = toMatrix2D(9, 7, arr);
-    //
-    // skeletize(9, 7, arr2D).subscribe(value => {
-    //   const skeletizedImage = createImageToGrayScale(9, 7, scaleUp(toMatrix1D(9, 7, value)));
-    //   this.container.nativeElement.appendChild(skeletizedImage);
-    // })
-    //this.handleAdaptiveThreshold();
     const width = this.fingerprint.tiff.width;
     const height = this.fingerprint.tiff.height;
-    const buffer = this.fingerprint.whiteBlackBuffer;
-    console.log(toMatrix2D(width, height, buffer));
+    const buffer = this.fingerprint.grayBuffer;
 
-    // const thresholded = adaptiveThreshold(width, height, toMatrix2D(width, height, buffer));
-    // console.log(thresholded);
-    skeletize(width, height, invert2D(toMatrix2D(width, height, buffer))).subscribe(value => {
+    const thresholded = adaptiveThreshold(width, height, toMatrix2D(width, height, buffer));
+
+    skeletize(width, height, invert2D(thresholded)).subscribe(value => {
       const skeletizedImage = createImageToGrayScale(width, height, scaleUp(toMatrix1D(width, height, value)));
       this.container.nativeElement.appendChild(skeletizedImage);
-      console.log(value);
     });
 
   }

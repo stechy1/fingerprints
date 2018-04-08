@@ -32,3 +32,33 @@ export function isMatrixSame(width: number, height: number, left: any, right: an
 
   return true;
 }
+
+export function serialize1D(width: number, height: number, buffer: Uint8Array): string {
+  let out = "";
+
+  for (let w = 0; w < width; w++) {
+    for (let h = 0; h < height; h++) {
+      out += buffer[w + width * h];
+    }
+
+    out += "\n";
+  }
+
+  return out;
+}
+
+export function serialize2D(buffer: Array<Uint8Array>): string {
+  const width = buffer.length;
+  const height = buffer[0].length;
+  let out = "";
+
+  for (let w = 0; w < width; w++) {
+    for (let h = 0; h < height; h++) {
+      out += buffer[w][h];
+    }
+
+    out += "\n";
+  }
+
+  return out;
+}
