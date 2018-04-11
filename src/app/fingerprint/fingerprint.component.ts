@@ -5,11 +5,10 @@ import { ActivatedRoute } from "@angular/router";
 import * as Fourier from "../shared/fourier";
 import { Otsu } from "../shared/otsu";
 import { Histogram } from "../shared/histogram";
-import { serialize2D, toMatrix1D, toMatrix2D } from "../shared/matrix";
+import { toMatrix1D, toMatrix2D } from "../shared/matrix";
 import { adaptiveThreshold } from "../shared/adaptive-treshold";
 import { skeletize } from "../shared/skeletization";
 import { createImageToGrayScale, invert2D, scaleUp } from "../shared/images";
-import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-fingerprint',

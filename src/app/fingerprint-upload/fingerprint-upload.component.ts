@@ -11,7 +11,7 @@ import { Fingerprint } from "../shared/fingerprint";
 })
 export class FingerprintUploadComponent implements OnInit {
 
-  selectedFingerprint: Fingerprint;
+  fingerprints: Fingerprint[] = [];
 
   constructor(private _fingerprintService: FingerprintService, private _router: Router) { }
 
@@ -26,7 +26,7 @@ export class FingerprintUploadComponent implements OnInit {
     if (file) {
       this._fingerprintService.load(file)
         .then(buffer => {
-          this.selectedFingerprint = Fingerprint.fromBuffer(file.name, buffer);
+          this.fingerprints.push(Fingerprint.fromBuffer(file.name, buffer));
         }).catch(err => {
           console.log(err);
       })
@@ -34,8 +34,7 @@ export class FingerprintUploadComponent implements OnInit {
   }
 
   handleUpload() {
-    this._fingerprintService.insert(this.selectedFingerprint, this.uploadProgress)
+    this._fingerprintService.insert(this.fingerprints, this.uploadProgress)
       .then(() => this._router.navigate(['dashboard']));
-    //this._router.navigate(['dashboard']);
   }
 }

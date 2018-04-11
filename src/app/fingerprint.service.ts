@@ -65,21 +65,21 @@ export class FingerprintService {
     return task;
   }
 
-  public async insert(fingerprint: Fingerprint, progressChanged: Function) {
-    const name = fingerprint.filename.substr(0, fingerprint.filename.indexOf("."));
-    const extention = fingerprint.filename.substr(fingerprint.filename.indexOf(".") + 1);
-    this._uploadBuffer(fingerprint, progressChanged)
-        .then((snapshot: UploadTaskSnapshot) => {
-          const url = snapshot.metadata.downloadURLs[0];
-          return firebase.database()
-                         .ref(`fingerprints/${name}`)
-                         .set({
-                           url: url,
-                           extention: extention
-                         });
+  public async insert(fingerprints: Fingerprint[], progressChanged: Function) {
+    return Promise.all(fingerprints.map(fingerprint => {
+      const name = fingerprint.filename.substr(0, fingerprint.filename.indexOf("."));
+      const extention = fingerprint.filename.substr(fingerprint.filename.indexOf(".") + 1);
+      this._uploadBuffer(fingerprint, progressChanged)
+      .then((snapshot: UploadTaskSnapshot) => {
+        const url = snapshot.metadata.downloadURLs[0];
+        return firebase.database()
+        .ref(`fingerprints/${name}`)
+        .set({
+          url: url,
+          extention: extention
         });
-    //const url = bucket.metadata.downloadURLs[0];
-
+      });
+    }));
   }
 
   public fingerprints(): Observable<Fingerprint[]> {
@@ -99,6 +99,5 @@ export class FingerprintService {
                 fp.buffer = buffer;
                 return fp;
               });
-    //return this._fingerprints[index];
   }
 }
