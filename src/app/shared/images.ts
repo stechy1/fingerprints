@@ -1,7 +1,10 @@
 export function toGrayScale(rgbBuffer: Int32Array): Uint8Array {
   const grayBuffer = rgbBuffer.map(value => {
-    //return 0.34 * ((value >> 24) & 0xFF) + 0.5 * ((value >> 16) & 0xFF) + 0.16 * ((value >> 8) & 0xFF);
-    return 0.2126 * ((value >> 24) & 0xFF) + 0.7152 * ((value >> 16) & 0xFF) + 0.0722 * ((value >> 8) & 0xFF);
+    const red = (value >> 24) & 0xFF;
+    const green = (value >> 16) & 0xFF;
+    const blue = (value >> 8) & 0xFF;
+
+    return (red + green + blue) / 3;
   });
 
   return new Uint8Array(grayBuffer);
