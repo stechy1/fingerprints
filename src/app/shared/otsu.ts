@@ -3,11 +3,11 @@ export class Otsu {
   private _thresholds: Array<number>;
   private _maxSum: number;
 
-  constructor(private _histogram: Array<number>, private _classes: number) {
+  constructor(private _histogram: Uint8Array, private _classes: number) {
     this._compute();
   }
 
-  private _buildTables(histogram: Array<number>): Array<number> {
+  private _buildTables(histogram: Uint8Array): Uint8Array {
     // Create cumulative sum tables.
     let P = new Array(histogram.length + 1);
     let S = new Array(histogram.length + 1);
@@ -25,7 +25,7 @@ export class Otsu {
     }
 
     // Calculate the between-class variance for the interval u-v
-    let H = new Array<number>(histogram.length * histogram.length);
+    let H = new Uint8Array(histogram.length * histogram.length);
     H.fill(0.);
 
     for (let u = 0; u < histogram.length; u++)
@@ -35,7 +35,7 @@ export class Otsu {
     return H;
   }
 
-  private _forLoop(H: Array<number>, u: number, vmax: number, level: number, levels: number, index: Array<number>): void {
+  private _forLoop(H: Uint8Array, u: number, vmax: number, level: number, levels: number, index: Array<number>): void {
     let classes = index.length - 1;
 
     for (let i = u; i < vmax; i++) {

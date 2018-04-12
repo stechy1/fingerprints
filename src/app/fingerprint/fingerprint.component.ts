@@ -4,11 +4,11 @@ import { Fingerprint } from "../shared/fingerprint";
 import { ActivatedRoute } from "@angular/router";
 import * as Fourier from "../shared/fourier";
 import { Otsu } from "../shared/otsu";
-import { Histogram } from "../shared/histogram";
 import { toMatrix1D, toMatrix2D } from "../shared/matrix";
 import { adaptiveThreshold } from "../shared/adaptive-treshold";
 import { skeletize } from "../shared/skeletization";
 import { createImageToGrayScale, invert2D, scaleUp } from "../shared/images";
+import { histogram, equalize } from "../shared/histogram";
 
 @Component({
   selector: 'app-fingerprint',
@@ -57,16 +57,15 @@ export class FingerprintComponent implements OnInit {
     const width = this.fingerprint.tiff.width;
     const height = this.fingerprint.tiff.height;
     const buffer = this.fingerprint.grayBuffer;
-    const hist = Histogram.fromImage(buffer);
+    const hist = histogram(buffer);
 
-    const otsu = new Otsu(hist.histogramData, 2);
+    const otsu = new Otsu(hist, 2);
     const tresholdedBuffer = otsu.getbuffer(buffer);
     const otsuImage = createImageToGrayScale(width, height, tresholdedBuffer);
     this.container.nativeElement.appendChild(otsuImage);
 
-    const eq = hist.equalize(buffer);
-    const eqHist = Histogram.fromImage(eq);
-    const eqOtsu = new Otsu(eqHist.histogramData, 2);
+    const eq = equalize(buffer);
+    const eqOtsu = new Otsu(eq, 2);
     const eqTresholdedBuffer = eqOtsu.getbuffer(eq);
     const eqOtsuImage = createImageToGrayScale(width, height, eqTresholdedBuffer);
     this.container.nativeElement.appendChild(eqOtsuImage);
