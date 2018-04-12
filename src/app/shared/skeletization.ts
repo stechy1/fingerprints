@@ -4,11 +4,11 @@ import { isMatrixSame } from "./matrix";
 
 function neighbour4(x: number, y: number, width: number, height: number, buffer: Array<Uint8Array>, type: string): number {
   let top, left, bottom, right, center;
-  top =  (y <= 0) ? 0 : buffer[x][y-1];
-  left = (x <= 0) ? 0 : buffer[x-1][y];
-  bottom = (y >= height - 1) ? 0 : buffer[x][y+1];
-  right = (x >= width - 1) ? 0 : buffer[x+1][y];
-  center = buffer[x][y];
+  top = (y <= 0) ? 0 : buffer[y - 1][x];
+  left = (x <= 0) ? 0 : buffer[y][x - 1];
+  bottom = (y >= height - 1) ? 0 : buffer[y + 1][x];
+  right = (x >= width - 1) ? 0 : buffer[y][x + 1];
+  center = buffer[y][x];
 
   switch (type) {
     case "min":
@@ -22,15 +22,15 @@ function neighbour4(x: number, y: number, width: number, height: number, buffer:
 
 function neighbour8(x: number, y: number, width: number, height: number, buffer: Array<Uint8Array>, type: string): number {
   let top, topLeft, left, bottomLeft, bottom, bottomRight, right, topRight, center;
-  top =  (y <= 0) ? 0 : buffer[x][y-1];
-  topLeft = (y <= 0 || x <= 0) ? 0 : buffer[x-1][y-1];
-  left = (x <= 0) ? 0 : buffer[x-1][y];
-  bottomLeft = (y >= height - 1 || x <= 0) ? 0 : buffer[x-1][y+1];
-  bottom = (y >= height - 1) ? 0 : buffer[x][y+1];
-  bottomRight = (y >= height - 1 || x >= width - 1) ? 0 : buffer[x+1][y+1];
-  right = (x >= width - 1) ? 0 : buffer[x+1][y];
-  topRight = (x >= width - 1 || y <= 0) ? 0 : buffer[x+1][y-1];
-  center = buffer[x][y];
+  top = (y <= 0) ? 0 : buffer[y - 1][x];
+  topLeft = (y <= 0 || x <= 0) ? 0 : buffer[y - 1][x - 1];
+  left = (x <= 0) ? 0 : buffer[y][x - 1];
+  bottomLeft = (y >= height - 1 || x <= 0) ? 0 : buffer[y + 1][x - 1];
+  bottom = (y >= height - 1) ? 0 : buffer[y + 1][x];
+  bottomRight = (y >= height - 1 || x >= width - 1) ? 0 : buffer[y + 1][x + 1];
+  right = (x >= width - 1) ? 0 : buffer[y][x + 1];
+  topRight = (x >= width - 1 || y <= 0) ? 0 : buffer[y - 1][x + 1];
+  center = buffer[y][x];
 
   switch (type) {
     case "min":
@@ -43,22 +43,22 @@ function neighbour8(x: number, y: number, width: number, height: number, buffer:
 }
 
 function notifyObserver(subscriber: Subscriber<Array<Uint8Array>>, width: number, height: number, data: Array<Uint8Array>): void {
-  let skelet = new Array(width);
-  for (let i = 0; i < width; i++) {
-    skelet[i] = new Uint8Array(height).fill(0);
+  let skelet = new Array(height);
+  for (let h = 0; h < height; h++) {
+    skelet[h] = new Uint8Array(width).fill(0);
   }
 
-  for (let w = 0; w < width; w++) {
-    for (let h = 0; h < height; h++) {
-      const value = data[w][h];
+  for (let h = 0; h < height; h++) {
+    for (let w = 0; w < width; w++) {
+      const value = data[h][w];
 
       if (value === 0) {
-        skelet[w][h] = 1;
+        skelet[h][w] = 1;
         continue;
       }
 
       const maxNeighbour = neighbour4(w, h, width, height, data, 'max');
-      skelet[w][h] = value >= maxNeighbour ? 0 : 1;
+      skelet[h][w] = value >= maxNeighbour ? 0 : 1;
     }
   }
 
@@ -68,19 +68,19 @@ function notifyObserver(subscriber: Subscriber<Array<Uint8Array>>, width: number
 export function skeletize(width: number, height: number, buffer: Array<Uint8Array>): Observable<Array<Uint8Array>> {
   return new Observable(subscriber => {
     const k = width; // Počet kroků
-    const U_k = new Array(width);
-    const U_k_prev = new Array(width);
-    for (let i = 0; i < width; i++) {
-      U_k[i] = new Uint8Array(height).fill(0);
-      U_k_prev[i] = new Uint8Array(height).fill(0);
+    const U_k = new Array(height);
+    const U_k_prev = new Array(height);
+    for (let h = 0; h < height; h++) {
+      U_k[h] = new Uint8Array(width).fill(0);
+      U_k_prev[h] = new Uint8Array(width).fill(0);
     }
 
     // Vzdálenostní transformace
     for (var step = 1; step < k; step++) {
       // Výpočet pro n-ty krok
-      for (let w = 0 + step; w < width - step; w++) {
-        for (let h = 0 + step; h < height - step; h++) {
-          U_k[w][h] = buffer[w][h] + neighbour4(w, h, width, height, U_k_prev, 'min');
+      for (let h = 0 + step; h < height - step; h++) {
+        for (let w = 0 + step; w < width - step; w++) {
+          U_k[h][w] = buffer[h][w] + neighbour4(w, h, width, height, U_k_prev, 'min');
         }
       }
 
@@ -89,9 +89,9 @@ export function skeletize(width: number, height: number, buffer: Array<Uint8Arra
       }
 
       // Nakopírování pole
-      for (let w = 0; w < width; w++) {
-        for (let h = 0; h < height; h++) {
-          U_k_prev[w][h] = U_k[w][h];
+      for (let h = 0; h < height; h++) {
+        for (let w = 0; w < width; w++) {
+          U_k_prev[h][w] = U_k[h][w];
         }
       }
 
@@ -108,12 +108,12 @@ export function skeletize(width: number, height: number, buffer: Array<Uint8Arra
     // for (let w = 0; w < width; w++) {
     //   for (let h = 0; h < height; h++) {
     //     const value = U_k_prev[w][h];
-	//
+    //
     //     // if (value === 0) {
     //     //   U_k[w][h] = 1;
     //     //   continue;
     //     // }
-	//
+    //
     //     const maxNeighbour = neighbour4(w, h, width, height, U_k_prev, 'max');
     //     U_k[w][h] = value >= maxNeighbour ? 1 : 0;
     //   }

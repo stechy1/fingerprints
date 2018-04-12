@@ -1,9 +1,9 @@
 export function toMatrix2D(width: number, height: number, buffer: Uint8Array): Array<Uint8Array> {
-  const out = new Array(width);
-  for (let w = 0; w < width; w++) {
-    out[w] = new Uint8Array(height);
-    for (let h = 0; h < height; h++) {
-      out[w][h] = buffer[w + width * h];
+  const out = new Array(height);
+  for (let h = 0; h < height; h++) {
+    out[h] = new Uint8Array(width);
+    for (let w = 0; w < width; w++) {
+      out[h][w] = buffer[w + width * h];
     }
   }
 
@@ -12,9 +12,9 @@ export function toMatrix2D(width: number, height: number, buffer: Uint8Array): A
 
 export function toMatrix1D(width: number, height: number, buffer: Array<Uint8Array>): Uint8Array {
   const out = new Uint8Array(width * height);
-  for (let w = 0; w < width; w++) {
-    for (let h = 0; h < height; h++) {
-      out[w + width * h] = buffer[w][h];
+  for (let h = 0; h < height; h++) {
+    for (let w = 0; w < width; w++) {
+      out[w + width * h] = buffer[h][w];
     }
   }
 
@@ -22,9 +22,9 @@ export function toMatrix1D(width: number, height: number, buffer: Array<Uint8Arr
 }
 
 export function isMatrixSame(width: number, height: number, left: any, right: any): boolean {
-  for (let w = 0; w < width; w++) {
-    for (let h = 0; h < height; h++) {
-      if (left[w][h] != right[w][h]) {
+  for (let h = 0; h < height; h++) {
+    for (let w = 0; w < width; w++) {
+      if (left[h][w] != right[h][w]) {
         return false;
       }
     }
@@ -36,8 +36,8 @@ export function isMatrixSame(width: number, height: number, left: any, right: an
 export function serialize1D(width: number, height: number, buffer: Uint8Array): string {
   let out = "";
 
-  for (let w = 0; w < width; w++) {
-    for (let h = 0; h < height; h++) {
+  for (let h = 0; h < height; h++) {
+    for (let w = 0; w < width; w++) {
       out += buffer[w + width * h];
     }
 
@@ -52,9 +52,9 @@ export function serialize2D(buffer: Array<Uint8Array>): string {
   const height = buffer[0].length;
   let out = "";
 
-  for (let w = 0; w < width; w++) {
-    for (let h = 0; h < height; h++) {
-      out += buffer[w][h];
+  for (let h = 0; h < height; h++) {
+    for (let w = 0; w < width; w++) {
+      out += buffer[h][w];
     }
 
     out += "\n";
