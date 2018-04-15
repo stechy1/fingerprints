@@ -4,11 +4,18 @@ import { Fingerprint } from "../shared/fingerprint";
 import { ActivatedRoute } from "@angular/router";
 import * as Fourier from "../shared/fourier";
 import { Otsu } from "../shared/otsu";
-import { toMatrix1D, toMatrix2D } from "../shared/matrix";
-import { adaptiveThreshold } from "../shared/adaptive-treshold";
-import { skeletize } from "../shared/skeletization";
-import { createImageToGrayScale, invert2D, scaleUp } from "../shared/images";
+import { toMatrix1D} from "../shared/matrix";
+import { AdaptiveTreshold } from "../shared/adaptive-treshold";
+import { createImageToGrayScale} from "../shared/images";
 import { histogram, equalize } from "../shared/histogram";
+import { Blur } from "../shared/filters/blur";
+import {
+  scaleUp2D,
+  invertBinary2D,
+  invertGrayScale2D, intersect
+} from "../shared/filters/mathematic-operations";
+import { Skeletization } from "../shared/skeletization";
+import { CannyEdgeDetector } from "../shared/filters/canny-edge-detector";
 
 @Component({
   selector: 'app-fingerprint',
@@ -21,7 +28,25 @@ export class FingerprintComponent implements OnInit {
 
   fingerprint: Fingerprint;
 
-  constructor(private _fingerprintService: FingerprintService, private _route: ActivatedRoute) { }
+  constructor(private _fingerprintService: FingerprintService, private _route: ActivatedRoute) {
+  }
+
+  private _addImage(buffer: Array<Uint8Array>, label: string = undefined): void {
+    const width = this.fingerprint.tiff.width;
+    const height = this.fingerprint.tiff.height;
+    const container = document.createElement('div');
+    container.classList.add('col');
+    if (label) {
+      const div = document.createElement('div');
+      div.innerHTML = label;
+      this.container.nativeElement.appendChild(div);
+      container.appendChild(div);
+    }
+    const image = createImageToGrayScale(width, height, toMatrix1D(width, height, buffer));
+    container.appendChild(image);
+
+    this.container.nativeElement.appendChild(container);
+  }
 
   ngOnInit() {
     const name = this._route.snapshot.paramMap.get('name');
@@ -72,26 +97,47 @@ export class FingerprintComponent implements OnInit {
   }
 
   handleAdaptiveThreshold() {
-    const width = this.fingerprint.tiff.width;
-    const height = this.fingerprint.tiff.height;
-    const buffer = this.fingerprint.grayBuffer;
-
-    const thresholded = adaptiveThreshold(width, height, toMatrix2D(width, height, buffer));
-    const thresholdedImage = createImageToGrayScale(width, height, scaleUp(toMatrix1D(width, height, thresholded)));
-    this.container.nativeElement.appendChild(thresholdedImage);
+    const buffer = this.fingerprint.grayBuffer2D;
+    const blur = new Blur();
+    const blurred = blur.applyFilter(buffer);
+    const threshold = new AdaptiveTreshold();
+    const thresholded = threshold.applyFilter(blurred);
+    const inverted = invertBinary2D(thresholded);
+    const skeletization = new Skeletization();
+    const skeletized = skeletization.applyFilter(inverted);
+    this._addImage(scaleUp2D(skeletized), 'skeletized');
   }
 
-  handleSkeletize() {
-    const width = this.fingerprint.tiff.width;
-    const height = this.fingerprint.tiff.height;
-    const buffer = this.fingerprint.grayBuffer;
+  handleCanny() {
+    const buffer = this.fingerprint.grayBuffer2D;
 
-    const thresholded = adaptiveThreshold(width, height, toMatrix2D(width, height, buffer));
 
-    skeletize(width, height, invert2D(thresholded)).subscribe(value => {
-      const skeletizedImage = createImageToGrayScale(width, height, scaleUp(toMatrix1D(width, height, value)));
-      this.container.nativeElement.appendChild(skeletizedImage);
-    });
+
+    const blur = new Blur();
+    const blurred = blur.applyFilter(buffer);
+	//
+    const canny = new CannyEdgeDetector();
+    const cannyEdges = canny.applyFilter(blurred);
+    // this._addImage(cannyEdges, 'canny edges');
+    const cannyEdgesInverted = invertGrayScale2D(cannyEdges);
+    this._addImage(cannyEdgesInverted, 'canny inverted');
+    const threshold = new AdaptiveTreshold();
+    const thresholded = threshold.applyFilter(cannyEdgesInverted);
+    this._addImage(scaleUp2D(thresholded), 'thresholded');
+    // const thresholdedInverted = invertBinary2D(thresholded);
+    // this._addImage(scaleUp2D(thresholdedInverted), 'thresholded inverted');
+    const intersected = intersect(scaleUp2D(thresholded), blurred);
+    this._addImage(intersected, 'intersected');
+    // const thresholded2 = threshold.applyFilter(intersected);
+    // this._addImage(scaleUp2D(thresholded2), 'thresholded2');
+
+    const inverted = invertGrayScale2D(intersected);
+    this._addImage(scaleUp2D(inverted), 'inverted');
+
+    const skeletization = new Skeletization();
+    const skeletized = skeletization.applyFilter(inverted);
+    this._addImage(scaleUp2D(skeletized), 'skeletized');
+
 
   }
 }

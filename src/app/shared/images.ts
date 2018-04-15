@@ -57,21 +57,3 @@ export function createImageToGrayScale(width: number, height: number, data: Uint
   context.putImageData(imageData, 0, 0);
   return canvas;
 }
-
-export function scaleUp(buffer: Uint8Array): Uint8Array {
-  return buffer.map(value => value * 255);
-}
-
-export function invert1D(buffer: Uint8Array): Uint8Array {
-  return buffer.map(value => (value === 0) ? 1 : 0);
-}
-
-export function invert2D(buffer: Array<Uint8Array>) {
-  const length1 = buffer.length;
-  const out = new Array(length1);
-  for (let i = 0; i < length1; i++) {
-    out[i] = buffer[i].map(value => (value === 0) ? 1 : 0);
-  }
-
-  return out;
-}

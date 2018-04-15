@@ -2,6 +2,7 @@ import { MyTiff } from "./my-tiff";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { Observable } from "rxjs/Observable";
 import * as Images from "./images";
+import { toMatrix2D } from "./matrix";
 
 export class Fingerprint {
 
@@ -52,6 +53,10 @@ export class Fingerprint {
     const raw = this.tiff.readRGBAImage();
     const rgbBuffer = new Int32Array(raw);
     return Images.toGrayScale(rgbBuffer);
+  }
+
+  get grayBuffer2D(): Array<Uint8Array> {
+    return toMatrix2D(this.tiff.width, this.tiff.height, this.grayBuffer);
   }
 
   get whiteBlackBuffer(): Uint8Array {
