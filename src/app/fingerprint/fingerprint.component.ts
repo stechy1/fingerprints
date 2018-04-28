@@ -16,6 +16,8 @@ import {
 } from "../shared/filters/mathematic-operations";
 import { Skeletization } from "../shared/skeletization";
 import { CannyEdgeDetector } from "../shared/filters/canny-edge-detector";
+import { HitAndMiss } from "../shared/filters/hitandmiss";
+import { Erosion } from "../shared/filters/erosion";
 
 @Component({
   selector: 'app-fingerprint',
@@ -103,9 +105,22 @@ export class FingerprintComponent implements OnInit {
     const threshold = new AdaptiveTreshold();
     const thresholded = threshold.applyFilter(blurred);
     const inverted = invertBinary2D(thresholded);
+    // let skeletized = invertBinary2D(this.fingerprint.whiteBlackBuffer2D);
+    // // for (let i = 0; i < 1; i++) {
+    //   const hitmiss = new HitAndMiss([
+    //     [0,  0, -1],
+    //     [0,  1,  1],
+    //     [-1, 1, -1]
+    //   ]);
+    //   skeletized = hitmiss.applyFilter(skeletized);
+    // // }
+    // console.log(skeletized);
     const skeletization = new Skeletization();
     const skeletized = skeletization.applyFilter(inverted);
     this._addImage(scaleUp2D(skeletized), 'skeletized');
+    const erosion = new Erosion([[0, 0, 0], [-1, 1, -1], [1, 1, 1]]);
+    const eroded = erosion.applyFilter(skeletized);
+    this._addImage(scaleUp2D(eroded), 'eroded');
   }
 
   handleCanny() {
