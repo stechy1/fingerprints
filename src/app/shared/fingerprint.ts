@@ -64,4 +64,8 @@ export class Fingerprint {
     const rgbBuffer = new Int32Array(raw);
     return Images.toBinaryScale(rgbBuffer);
   }
+
+  get whiteBlackBuffer2D(): Array<Uint8Array> {
+    return toMatrix2D(this.tiff.width, this.tiff.height, this.whiteBlackBuffer);
+  }
 }
