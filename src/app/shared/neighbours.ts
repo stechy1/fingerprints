@@ -1,5 +1,8 @@
-export enum NeighboursCount {
-  FOUR, EIGHT
+export class NeighboursCount {
+  public static readonly FOUR = new NeighboursCount(4);
+  public static readonly EIGHT = new NeighboursCount(8);
+
+  constructor(public readonly count: number) {}
 }
 
 export class Neighbours {
@@ -48,4 +51,37 @@ export class Neighbours {
     return Math.max.apply(null, this._neighbours);
   }
 
+  get count(): number {
+    return this._neighbours.filter(value => value === 0).length;
+  }
+
+  /**
+   * Vypočítá, v kolika pixelech se liší maska od prohledávaného okolí bodu
+   *
+   * @param {Array<Uint8Array>} mask
+   * @returns {number}
+   */
+  public corespondWithMask(mask: Array<Uint8Array>): number {
+    const count = this._neighbourCount.count;
+    const maskNeighbours = new Neighbours(1, 1, mask, this._neighbourCount);
+    const results = [];
+
+    for (let i = 0; i < count; i++) {
+      let result = count;
+
+      for (let j = 0; j < count; j++) {
+        if (this._neighbours[j] === maskNeighbours._neighbours[(i+j)%count]) {
+          result--;
+        }
+      }
+
+      if (result === 0) {
+        return 0;
+      }
+
+      results[i] = result;
+    }
+
+    return Math.min.apply(null, results);
+  }
 }
