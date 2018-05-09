@@ -19,8 +19,6 @@ import { CannyEdgeDetector } from "../shared/filters/canny-edge-detector";
 import { ComponentFinder, ComponentType } from '../shared/component-finder';
 import { FilterSequence } from '../shared/filters/filter-sequence';
 import { CallbackFilter } from '../shared/filters/callback-filter';
-import { Closing } from '../shared/filters/closing';
-import { Opening } from '../shared/filters/opening';
 
 @Component({
   selector: 'app-fingerprint',
