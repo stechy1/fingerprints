@@ -4,10 +4,18 @@ import { Erosion } from "./erosion";
 
 export class Closing implements Filter {
 
-  private readonly _dilatation = new Dilatation();
-  private readonly _erosion = new Erosion();
+  private readonly _dilatation;
+  private readonly _erosion;
 
-  constructor(private readonly _count: number = 1) {}
+  constructor(private readonly _se: number[][] = undefined, private readonly _count: number = 1) {
+    if (!this._se) {
+      this._dilatation = new Dilatation();
+      this._erosion = new Erosion();
+    } else {
+      this._dilatation = new Dilatation(this._se);
+      this._erosion = new Erosion(this._se);
+    }
+  }
 
   applyFilter(buffer: Array<Uint8Array>): Array<Uint8Array> {
     let dilatated = this._dilatation.applyFilter(buffer);
@@ -20,7 +28,7 @@ export class Closing implements Filter {
       eroded = this._erosion.applyFilter(eroded);
     }
 
-    return dilatated;
+    return eroded;
   }
 
 }

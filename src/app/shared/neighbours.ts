@@ -64,24 +64,17 @@ export class Neighbours {
   public corespondWithMask(mask: Array<Uint8Array>): number {
     const count = this._neighbourCount.count;
     const maskNeighbours = new Neighbours(1, 1, mask, this._neighbourCount);
-    const results = [];
+    // const results = [];
 
+    let result = count;
     for (let i = 0; i < count; i++) {
-      let result = count;
-
-      for (let j = 0; j < count; j++) {
-        if (this._neighbours[j] === maskNeighbours._neighbours[(i+j)%count]) {
-          result--;
-        }
+      if (this._neighbours[i] === maskNeighbours._neighbours[i]) {
+        result--;
       }
-
-      if (result === 0) {
-        return 0;
-      }
-
-      results[i] = result;
     }
+    return result;
 
-    return Math.min.apply(null, results);
+    //return Math.min.apply(null, results);
+
   }
 }

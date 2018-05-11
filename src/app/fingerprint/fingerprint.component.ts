@@ -16,9 +16,12 @@ import {
 } from "../shared/filters/mathematic-operations";
 import { Skeletization } from "../shared/skeletization";
 import { CannyEdgeDetector } from "../shared/filters/canny-edge-detector";
-import { ComponentFinder, ComponentType } from '../shared/component-finder';
+import { ComponentFinder } from '../shared/component-finder';
 import { FilterSequence } from '../shared/filters/filter-sequence';
 import { CallbackFilter } from '../shared/filters/callback-filter';
+import { Erosion } from '../shared/filters/erosion';
+import { Closing } from '../shared/filters/closing';
+import { Dilatation } from '../shared/filters/dilatation';
 
 @Component({
   selector: 'app-fingerprint',
@@ -58,13 +61,6 @@ export class FingerprintComponent implements OnInit {
         .then(fingerprint => {
           this.fingerprint = fingerprint;
         });
-    // this._routerSub = this._route.paramMap.subscribe(value => {
-    //   const name = value.get('name');
-    //   this._fingerprintService.getByIndex(name)
-    //       .then((fingerprint: any) => {
-    //         this.fingerprint = fingerprint;
-    //       });
-    // });
   }
 
   handleFFT() {
@@ -109,14 +105,15 @@ export class FingerprintComponent implements OnInit {
       new Skeletization(),
     ]);
     const skeletized = sequence.applyFilter(buffer);
+
     const finder = new ComponentFinder();
-    const result = finder.findComponents(skeletized, ComponentType.FORK);
+    const result = finder.findComponents(skeletized);
     const skeletizedImage = this._addImage(scaleUp2D(skeletized), 'skeletized');
     const ctx: CanvasRenderingContext2D = skeletizedImage.getContext("2d");
     ctx.strokeStyle = "blue";
     ctx.lineWidth = 0.5;
     result.forEach(value => {
-      ctx.strokeRect(value.x - 5, value.y - 5, 10, 10);
+      ctx.strokeRect(value.x - 3, value.y - 3, 5, 5);
     });
   }
 
