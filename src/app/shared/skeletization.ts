@@ -63,4 +63,8 @@ export class Skeletization implements Filter {
     return U_k;
   }
 
+  filterName(): string {
+    return "Skeletization";
+  }
+
 }

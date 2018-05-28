@@ -120,4 +120,8 @@ export class AdaptiveTreshold implements Filter {
     return output;
   }
 
+  filterName(): string {
+    return "AdaptiveThreshold";
+  }
+
 }

@@ -64,4 +64,8 @@ export class Dilatation implements Filter {
 
     return out;
   }
+
+  filterName(): string {
+    return "Dilatation";
+  }
 }

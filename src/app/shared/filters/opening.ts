@@ -21,4 +21,9 @@ export class Opening implements Filter {
 
     return dilatated;
   }
+
+  filterName(): string {
+    return "Opening";
+  }
+
 }

@@ -107,4 +107,8 @@ export class HitAndMiss implements Filter {
     return out;
   }
 
+  filterName(): string {
+    return "Hit&Miss";
+  }
+
 }

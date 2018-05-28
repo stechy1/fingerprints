@@ -1,8 +1,6 @@
-<!--<ng-template *ngIf="fingerprint$ | async as fingerprint">-->
 <app-fingerprint-view [fingerprint]="fingerprint"></app-fingerprint-view>
-<!--</ng-template>-->
 <div #container class="row"></div>
-<button class="btn btn-primary" (click)="handleFFT()">FFT</button>
-<button class="btn btn-primary" (click)="handleOtsu()">Otsu</button>
-<button class="btn btn-primary" (click)="handleAdaptiveThreshold()">Adaptive threshold</button>
-<button class="btn btn-primary" (click)="handleCanny()">Canny</button>
+<button class="btn btn-primary" (click)="handleFFT()" [disabled]="!fingerprintLoaded">FFT</button>
+<button class="btn btn-primary" (click)="handleOtsu()" [disabled]="true">Otsu</button>
+<button class="btn btn-primary" (click)="handleAdaptiveThreshold()" [disabled]="!fingerprintLoaded">Adaptive threshold</button>
+<button class="btn btn-primary" (click)="handleCanny()" [disabled]="!fingerprintLoaded">Canny</button>

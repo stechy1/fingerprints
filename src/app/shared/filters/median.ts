@@ -62,4 +62,8 @@ export class Median implements Filter {
     return out;
   }
 
+  filterName(): string {
+    return "Median";
+  }
+
 }

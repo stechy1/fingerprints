@@ -31,4 +31,7 @@ export class Closing implements Filter {
     return eroded;
   }
 
+  filterName(): string {
+    return "Closing";
+  }
 }

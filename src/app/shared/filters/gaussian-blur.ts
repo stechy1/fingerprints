@@ -132,4 +132,8 @@ export class GaussianBlur implements Filter {
 
     return out;
   }
+
+  filterName(): string {
+    return "GaussianBlur";
+  }
 }
