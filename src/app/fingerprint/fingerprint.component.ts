@@ -6,8 +6,8 @@ import * as Fourier from "../shared/fourier";
 import { Otsu } from "../shared/otsu";
 import { toMatrix1D, toMatrix2D } from "../shared/matrix";
 import { AdaptiveTreshold } from "../shared/adaptive-treshold";
-import { createImageToGrayScale, toBinaryScale } from "../shared/images";
-import { histogram, equalize } from "../shared/histogram";
+import { createImageToGrayScale } from "../shared/images";
+import { histogram } from "../shared/histogram";
 import { Blur } from "../shared/filters/blur";
 import { scaleUp2D, invertBinary2D, invertGrayScale2D, intersect } from "../shared/filters/mathematic-operations";
 import { Skeletization } from "../shared/skeletization";
@@ -110,13 +110,6 @@ export class FingerprintComponent implements OnInit {
       this._addImage(buffer, blur.filterName());
     }
 
-    // const sequence = new FilterSequence([
-    //   new AdaptiveTreshold(),
-    //   new CallbackFilter(invertBinary2D, "inversion"),
-    //   new Skeletization(),
-    // ], (filterName, img) => {
-    //   this._addImage(scaleUp2D(img), filterName);
-    // });
     const sequence = this.getFilterSequence();
     sequence.setFilterApplyCallback((filterName, img) => {
         this._addImage(scaleUp2D(img), filterName);
