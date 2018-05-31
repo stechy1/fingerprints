@@ -60,9 +60,11 @@ export class Fingerprint {
   }
 
   get whiteBlackBuffer(): Uint8Array {
-    const raw = this.tiff.readRGBAImage();
-    const rgbBuffer = new Int32Array(raw);
-    return Images.toBinaryScale(rgbBuffer);
+    const raw = this.grayBuffer;
+    return raw.map(value => value > 0 ? 1 : 0);
+    // const raw = this.tiff.readRGBAImage();
+    // const rgbBuffer = new Int32Array(raw);
+    // return Images.toBinaryScale(rgbBuffer);
   }
 
   get whiteBlackBuffer2D(): Array<Uint8Array> {

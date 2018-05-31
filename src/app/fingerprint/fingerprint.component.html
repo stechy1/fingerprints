@@ -1,6 +1,11 @@
 <app-fingerprint-view [fingerprint]="fingerprint"></app-fingerprint-view>
 <div #container class="row"></div>
-<button class="btn btn-primary" (click)="handleFFT()" [disabled]="!fingerprintLoaded">FFT</button>
-<button class="btn btn-primary" (click)="handleOtsu()" [disabled]="true">Otsu</button>
-<button class="btn btn-primary" (click)="handleAdaptiveThreshold()" [disabled]="!fingerprintLoaded">Adaptive threshold</button>
+<!--<button class="btn btn-primary" (click)="handleFFT()" [disabled]="!fingerprintLoaded">FFT</button>-->
+<!--<button class="btn btn-primary" (click)="handleOtsu()" [disabled]="true">Otsu</button>-->
+<button class="btn btn-primary" (click)="handleAdaptiveThreshold()" [disabled]="!fingerprintLoaded">Najdi vidlice</button>
 <button class="btn btn-primary" (click)="handleCanny()" [disabled]="!fingerprintLoaded">Canny</button>
+
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="imageIsBlackWhite" [(ngModel)]="imageIsBlackWhite" [ngModelOptions]="{standalone: true}">
+  <label class="form-check-label" for="imageIsBlackWhite">Obrázek je černobílý</label>
+</div>

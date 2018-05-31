@@ -2,7 +2,7 @@ import { Filter } from '../filter';
 
 export class FilterSequence implements Filter {
 
-  constructor(private readonly filters: Filter[], private readonly onFilterApplyCallback: Function = undefined) {}
+  constructor(private readonly filters: Filter[] = [], private onFilterApplyCallback: Function = undefined) {}
 
   applyFilter(buffer: Array<Uint8Array>): Array<Uint8Array> {
     let filter = this.filters[0];
@@ -27,6 +27,12 @@ export class FilterSequence implements Filter {
     return `FilterSequence: {${filterNames}}`;
   }
 
+  addFilter(filter: Filter): void {
+    this.filters.push(filter);
+  }
 
+  setFilterApplyCallback(callback: Function) {
+    this.onFilterApplyCallback = callback;
+  }
 
 }

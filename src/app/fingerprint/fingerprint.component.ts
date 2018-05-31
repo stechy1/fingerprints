@@ -6,7 +6,7 @@ import * as Fourier from "../shared/fourier";
 import { Otsu } from "../shared/otsu";
 import { toMatrix1D, toMatrix2D } from "../shared/matrix";
 import { AdaptiveTreshold } from "../shared/adaptive-treshold";
-import { createImageToGrayScale} from "../shared/images";
+import { createImageToGrayScale, toBinaryScale } from "../shared/images";
 import { histogram, equalize } from "../shared/histogram";
 import { Blur } from "../shared/filters/blur";
 import { scaleUp2D, invertBinary2D, invertGrayScale2D, intersect } from "../shared/filters/mathematic-operations";
@@ -24,6 +24,7 @@ import { CallbackFilter } from '../shared/filters/callback-filter';
 export class FingerprintComponent implements OnInit {
 
   @ViewChild("container") container: ElementRef;
+  imageIsBlackWhite: boolean = false;
 
   fingerprint: Fingerprint;
   fingerprintLoaded: boolean = false;
@@ -46,6 +47,17 @@ export class FingerprintComponent implements OnInit {
 
     this.container.nativeElement.appendChild(container);
     return image;
+  }
+
+  private getFilterSequence(): FilterSequence {
+    const sequence = new FilterSequence();
+    if (!this.imageIsBlackWhite) {
+      sequence.addFilter(new AdaptiveTreshold());
+      sequence.addFilter(new CallbackFilter(invertBinary2D, "inversion"));
+    }
+    sequence.addFilter(new Skeletization());
+
+    return sequence;
   }
 
   ngOnInit() {
@@ -91,19 +103,25 @@ export class FingerprintComponent implements OnInit {
   }
 
   handleAdaptiveThreshold() {
-    const buffer = this.fingerprint.grayBuffer2D;
-    const blur = new Blur();
-    const blured = blur.applyFilter(buffer);
-    this._addImage(blured, blur.filterName());
+    let buffer = this.fingerprint.grayBuffer2D;
+    if (!this.imageIsBlackWhite) {
+      const blur = new Blur();
+      buffer = blur.applyFilter(buffer);
+      this._addImage(buffer, blur.filterName());
+    }
 
-    const sequence = new FilterSequence([
-      new AdaptiveTreshold(),
-      new CallbackFilter(invertBinary2D, "inversion"),
-      new Skeletization(),
-    ], (filterName, img) => {
-      this._addImage(scaleUp2D(img), filterName);
-    });
-    const skeletized = sequence.applyFilter(blured);
+    // const sequence = new FilterSequence([
+    //   new AdaptiveTreshold(),
+    //   new CallbackFilter(invertBinary2D, "inversion"),
+    //   new Skeletization(),
+    // ], (filterName, img) => {
+    //   this._addImage(scaleUp2D(img), filterName);
+    // });
+    const sequence = this.getFilterSequence();
+    sequence.setFilterApplyCallback((filterName, img) => {
+        this._addImage(scaleUp2D(img), filterName);
+      });
+    const skeletized = sequence.applyFilter(buffer);
 
     const finder = new ComponentFinder();
     const result = finder.findComponents(skeletized);
