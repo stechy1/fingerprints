@@ -1,14 +1,18 @@
 {
   "name": "fingerprint",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
+  "main": "main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "electron": "ng build && electron .",
+    "electron-aot": "ng build --prod && electron .",
+    "pack": "npm electron-aot && electron-packager dist fingerprints"
   },
   "private": true,
   "dependencies": {
@@ -39,6 +43,8 @@
     "@types/jasminewd2": "~2.0.2",
     "@types/node": "^6.0.104",
     "codelyzer": "^4.3.0",
+    "electron": "^2.0.2",
+    "electron-packager": "^12.1.0",
     "jasmine-core": "~2.8.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "^2.0.2",
